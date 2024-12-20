@@ -1,6 +1,7 @@
 package com.example.myapplication.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,18 +13,21 @@ import com.example.myapplication.data.models.Album
 import com.example.myapplication.R
 import com.example.myapplication.SearchAdapter
 import com.example.myapplication.SearchType
-import com.example.myapplication.data.db.Playlist
 import com.example.myapplication.mvvm.SearchViewModel
+import com.example.myapplication.data.db.Playlist
 import com.example.myapplication.data.models.Track
 import com.example.myapplication.databinding.FragmentSearchBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import com.example.myapplication.data.db.PlaylistWithTracks
 
 class SearchFragment : Fragment() {
 
     private lateinit var binding: FragmentSearchBinding
     private val viewModel: SearchViewModel by viewModels()
     private lateinit var searchAdapter: SearchAdapter
+    private var currentPlaylistId: Long = 1 // Default playlist ID for now
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,6 +44,7 @@ class SearchFragment : Fragment() {
         setupSearchButton()
         observeSearchResults()
         observeErrors()
+
     }
 
     private fun observeErrors() {
@@ -54,7 +59,7 @@ class SearchFragment : Fragment() {
                 showDetails(item)
             },
             onItemLongClicked = { item ->
-                showAddPlaylistDialog(item)
+                showPlaylistOptions(item)
             }
         )
         binding.searchRecyclerView.apply {
@@ -94,7 +99,7 @@ class SearchFragment : Fragment() {
     private fun showDetails(item: Any) {
         when (item){
             is Track -> {
-                val detailsFragment = TrackDetailsFragment.newInstance(item.id)
+                val detailsFragment = TrackDetailsFragment.newInstance(item.id.toLong())
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, detailsFragment)
                     .addToBackStack(null)
@@ -109,8 +114,17 @@ class SearchFragment : Fragment() {
             }
         }
     }
-
-    private fun showAddPlaylistDialog(item: Any){
+    private fun showPlaylistOptions(item: Any) {
+        viewModel.playlists.observe(viewLifecycleOwner) { playlists ->
+            if (playlists.isEmpty()) {
+                showAddPlaylistDialog(item)
+            } else {
+                showPlaylistSelectionDialog(item, playlists)
+            }
+        }
+        viewModel.getAllPlaylists()
+    }
+    private fun showAddPlaylistDialog(item: Any) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_playlist, null)
         val playlistNameEditText = dialogView.findViewById<TextInputEditText>(R.id.playlistNameEditText)
 
@@ -133,6 +147,20 @@ class SearchFragment : Fragment() {
                     Toast.makeText(context, "Playlist name cannot be empty", Toast.LENGTH_SHORT)
                         .show()
                 }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+    private fun showPlaylistSelectionDialog(item: Any, playlists: List<PlaylistWithTracks>) {
+        val playlistNames = playlists.map { it.playlist.name }.toTypedArray()
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Select a Playlist")
+            .setItems(playlistNames) { _, which ->
+                val selectedPlaylist = playlists[which]
+                addItemToPlaylist(item, selectedPlaylist.playlist.id)
+            }
+            .setPositiveButton("Create new playlist") { _, _ ->
+                showAddPlaylistDialog(item)
             }
             .setNegativeButton("Cancel", null)
             .show()

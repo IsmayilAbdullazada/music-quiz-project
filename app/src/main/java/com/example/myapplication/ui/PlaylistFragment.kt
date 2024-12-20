@@ -89,7 +89,10 @@ class PlaylistFragment : Fragment() {
             .show()
     }
     private fun showPlaylistDetails(playlistId: Long){
-        Toast.makeText(context, "Opening playlist: $playlistId", Toast.LENGTH_SHORT).show()
-        //TODO: Open new fragment to show playlist details
+        val playlistDetailsFragment = PlaylistDetailsFragment.newInstance(playlistId)
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, playlistDetailsFragment)
+            .addToBackStack(null)
+            .commit()
     }
 }
