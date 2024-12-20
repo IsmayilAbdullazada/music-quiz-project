@@ -65,11 +65,11 @@ graph TD
     MainActivity -->|Navigates to| PlaylistFragment
     MainActivity -->|Navigates to| QuizFragment
 
-    SearchFragment -->|Opens| AlbumDetailsFragment
-    SearchFragment -->|Opens| TrackDetailsFragment
-    PlaylistFragment -->|Opens| PlaylistDetailsFragment
-    QuizFragment -->|Opens| QuizDetailsFragment
-    QuizDetailsFragment -->|Starts| QuizPlayFragment
+    SearchFragment -->|Opens Album Details| AlbumDetailsFragment
+    SearchFragment -->|Opens Track Details| TrackDetailsFragment
+    PlaylistFragment -->|Opens Playlist Details| PlaylistDetailsFragment
+    QuizFragment -->|Opens Quiz Details| QuizDetailsFragment
+    QuizDetailsFragment -->|Starts Quiz Play| QuizPlayFragment
   end
 
   %% ViewModel Layer
@@ -86,63 +86,60 @@ graph TD
     QuizRepository
   end
 
-  %% External Data Sources
+  %% Data Sources
   subgraph "Data Sources"
-    DeezerApi 
-    PlaylistTable
+    DeezerApi
     TrackTable
+    AlbumTable
+    PlaylistTable
     QuizTable
     QuizQuestionTable
   end
 
-  %% Connections
-  SearchFragment --> SearchViewModel
-  PlaylistFragment --> PlaylistViewModel
-  QuizFragment --> QuizViewModel
+  %% UI Layer to ViewModel Layer
+  SearchFragment -->|Submits Search Query| SearchViewModel
+  PlaylistFragment -->|Requests Playlist Data| PlaylistViewModel
+  QuizFragment -->|Requests Quiz Data| QuizViewModel
 
-  AlbumDetailsFragment --> SearchViewModel
-  TrackDetailsFragment --> SearchViewModel
-  PlaylistDetailsFragment --> PlaylistViewModel
-  QuizDetailsFragment --> QuizViewModel
-  QuizPlayFragment --> QuizViewModel
+  AlbumDetailsFragment -->|Displays Album Details| SearchViewModel
+  TrackDetailsFragment -->|Displays Track Details| SearchViewModel
+  PlaylistDetailsFragment -->|Displays Playlist Details| PlaylistViewModel
+  QuizDetailsFragment -->|Displays Quiz Details| QuizViewModel
+  QuizPlayFragment -->|Fetches Quiz Questions| QuizViewModel
 
-  SearchFragment -->|Binds to| SearchViewModel
-  PlaylistFragment -->|Binds to| PlaylistViewModel
-  QuizFragment -->|Binds to| QuizViewModel
+  %% ViewModel Layer to Repository Layer
+  SearchViewModel -->|Executes Search Operations| SearchRepository
+  SearchViewModel -->|Retrieves Track/Album Details| SearchRepository
+  PlaylistViewModel -->|Fetches Playlists| PlaylistRepository
+  PlaylistViewModel -->|Manages Track Associations| PlaylistRepository
+  QuizViewModel -->|Fetches Quizzes| QuizRepository
+  QuizViewModel -->|Retrieves Quiz Questions| QuizRepository
+  QuizViewModel -->|Retrieves Playlist Data for Quizzes| PlaylistRepository
 
-  AlbumDetailsFragment -->|Binds to| SearchViewModel
-  TrackDetailsFragment -->|Binds to| SearchViewModel
-  PlaylistDetailsFragment -->|Binds to| PlaylistViewModel
-  QuizDetailsFragment -->|Binds to| QuizViewModel
-  QuizPlayFragment -->|Binds to| QuizViewModel
+  %% Repository Layer to Data Sources
+  SearchRepository -->|Checks Local Data| TrackTable
+  SearchRepository -->|Checks Local Data| AlbumTable
+  SearchRepository -->|Fetches Remote Data| DeezerApi
+  SearchRepository -->|Saves Data Locally| TrackTable
+  SearchRepository -->|Saves Data Locally| AlbumTable
 
-  SearchViewModel -->|Request Data| SearchRepository
-  PlaylistViewModel -->|Request Data| PlaylistRepository
-  QuizViewModel -->|Request Data| QuizRepository
+  PlaylistRepository -->|Retrieves Playlist Data| PlaylistTable
+  PlaylistRepository -->|Retrieves Track Information| SearchRepository
 
-  SearchRepository -->|Fetch Data| DeezerApi
-  PlaylistRepository -->|Manage Data| PlaylistTable
-  PlaylistRepository -->|Manage Tracks| TrackTable
-  PlaylistRepository -->|Fetch Remote Data| DeezerApi
-  QuizRepository -->|Manage Data| QuizTable
-  QuizRepository -->|Manage Questions| QuizQuestionTable
-  QuizRepository -->|Fetch Remote Data| DeezerApi
+  QuizRepository -->|Retrieves Quiz Data| QuizTable
+  QuizRepository -->|Retrieves Quiz Questions| QuizQuestionTable
+  QuizRepository -->|Retrieves Track Data for Questions| SearchRepository
+  QuizRepository -->|Retrieves Associated Playlist| PlaylistRepository
 
-  SearchRepository -->|Fetch/Search Data| DeezerApi
-  PlaylistRepository -->|Manage Playlists and Tracks| PlaylistTable
-  PlaylistRepository -->|Fetch Tracks| DeezerApi
-  QuizRepository -->|Manage Quizzes and Questions| QuizTable
-  QuizRepository -->|Fetch Data| DeezerApi
+  %% Responsibilities
+  SearchViewModel -->|Search Tracks/Albums| SearchRepository
+  SearchViewModel -->|Retrieve Track/Album Details| SearchRepository
 
-  SearchViewModel -->|Fetch/Search Albums/Tracks| SearchRepository
-  SearchViewModel -->|Fetch Track/Album Details| SearchRepository
+  PlaylistViewModel -->|Create/Update/Delete Playlists| PlaylistRepository
+  PlaylistViewModel -->|Associate/Remove Tracks| PlaylistRepository
 
-  PlaylistViewModel -->|Fetch/Create/Update/Delete Playlists| PlaylistRepository
-  PlaylistViewModel -->|Manage Track Associations| PlaylistRepository
-
-  QuizViewModel -->|Fetch/Create/Delete Quizzes| QuizRepository
-  QuizViewModel -->|Access Quiz Questions| QuizRepository
-  QuizViewModel -->|Access Playlist Data for Quizzes| PlaylistRepository
+  QuizViewModel -->|Create/Delete Quizzes| QuizRepository
+  QuizViewModel -->|Manage Question Associations| QuizRepository
 
  
 
