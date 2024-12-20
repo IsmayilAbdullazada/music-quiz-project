@@ -38,21 +38,65 @@ The app follows the **Model-View-ViewModel (MVVM)** architecture to ensure separ
 
 ### **Architecture Diagram**
 
-```plaintext
-                                +---------------+
-                                | Main Activity |
-                                +---------------+
-                                        |
-                                        ▼
-+-----------------+   +---------------------+   +-------------------+
-| View (Fragments)|   |  ViewModel (Logic) |   |  Repository (Data)|
-+-----------------+   +---------------------+   +-------------------+
-       |                          |                          |
-       ▼                          ▼                          ▼
-+--------------+       +-------------------+         +-------------+
-|RecyclerViews |       | LiveData Observers|         | Room DAO    |
-|& UI Elements |       | Coroutine Scopes |         | Retrofit API|
-+--------------+       +-------------------+         +-------------+
+```mermaid
+
+graph TD
+    subgraph UI
+        A1[MainActivity]
+        A2[SearchFragment]
+        A3[PlaylistFragment]
+        A4[AlbumDetailsFragment]
+        A5[TrackDetailsFragment]
+    end
+
+    subgraph ViewModel
+        B1[SearchViewModel]
+    end
+
+    subgraph Repository
+        C1[SearchRepository]
+    end
+
+    subgraph External
+        D1[DeezerApiService - Retrofit]
+        D2[Room Database]
+    end
+
+    %% Connections between components
+    A1 --> A2
+    A1 --> A3
+    A2 --> B1
+    A3 --> B1
+    A4 --> B1
+    A5 --> B1
+
+    %% ViewModel interaction with Repository
+    B1 -->|Search Tracks/Albums| C1
+    B1 -->|Get Track/Album Details| C1
+    B1 -->|Insert Playlist| C1
+    B1 -->|Add Track to Playlist| C1
+    B1 -->|Fetch All Playlists| C1
+
+    %% Repository interaction with Retrofit and Database
+    C1 -->|Search API Calls| D1
+    C1 -->|Get Track/Album Details| D1
+    C1 -->|Add Track to Playlist| D2
+    C1 -->|Insert Playlist| D2
+    C1 -->|Fetch Playlists| D2
+
+    %% API and Database interaction
+    D1[DeezerApiService - Retrofit] -->|HTTP GET| ExternalAPI[Deezer API]
+    D2[Room Database] -->|Read/Write| InternalStorage
+
+    %% Feedback loop
+    D1 --> C1
+    D2 --> C1
+    C1 --> B1
+    B1 -->|LiveData Updates| A2
+    B1 -->|LiveData Updates| A3
+    B1 -->|LiveData Updates| A4
+    B1 -->|LiveData Updates| A5
+
 ```
 
 ### **Implementation Choices**
