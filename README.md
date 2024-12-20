@@ -184,6 +184,20 @@ graph TD
    - The app does not yet have a dedicated dark mode. Adding this feature would enhance usability and aesthetics for users preferring darker themes.
 
 ---
+
+### Future Improvements
+
+##### Error Handling (Centralized error handling for consistent messages and better logging.)
+
+##### Search Optimization (Add search suggestions and advanced filters like genre and release date.)
+
+##### Testing (Implement unit and UI tests for critical components.)
+
+##### Multiple Select for Playlists (Enable selecting multiple tracks for batch operations.)
+
+##### Quiz Modes (Add modes like Time Attack, Elimination, and Playlist Challenge.)
+
+---
 ### **Contributors and Contributions**
 
 - **Yusif Askari**:
