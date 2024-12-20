@@ -166,49 +166,49 @@ graph TD
 
 ---
 
-## **Unresolved Technical Challenges**
+### **Unresolved Technical Challenges**
 
-1. **Error Handling:**
-   - While basic error handling exists, some edge cases (e.g., network timeouts or partial API responses) need more comprehensive handling.
+#### - Robust Error Handling: The app provides basic error handling, showing error messages with `Toast` messages. This is not user friendly and not informative of the underlying problems.
 
-2. **Playlist Details:**
-   - Clicking on a playlist currently shows a placeholder action. The feature to display playlist details and manage tracks within a playlist remains to be implemented.
+#### - Search Optimization: Add search suggestions and advanced filters like genre and release date
 
-3. **Search Performance Optimization:**
-   - For large datasets, the search and result rendering process can be slow. Implementing pagination or on-demand data loading might improve performance.
+#### - Full Offline Mode Functionality: While the app has a basic setup for offline mode by storing playlist data and track ids, the app doesn't fully cache recent searches or playlists. The current implementation doesn't handle cases where the user has no internet.
 
-4. **Audio Playback Issues:**
-   - Playback of track previews occasionally fails due to unsupported formats or network errors. A fallback mechanism is required to improve user experience.
+#### - Audio player improvements: The current audio player is very basic and has not proper UI components to show the user its state.
 
-5. **Dark Mode Support:**
-   - The app does not yet have a dedicated dark mode. Adding this feature would enhance usability and aesthetics for users preferring darker themes.
+#### - Dynamic UI Adaptability: The UI components, though functional, are not dynamically adaptable to different screen sizes and resolutions.
+
+#### - Advanced Quiz Options: The app has only one game mode (multiple choices) implemented. Other game modes, such as "fill in the blanks" are not implemented yet.
 
 ---
+### Contributors and Contributions
 
-### Future Improvements
+This project was developed collaboratively by:
 
-##### Error Handling (Centralized error handling for consistent messages and better logging.)
+- **Yusif Askari:**
 
-##### Search Optimization (Add search suggestions and advanced filters like genre and release date.)
+    *   **Data Management and Persistence:** Primarily responsible for the development of the data layer, including:
+        *   Designing and implementing the **local database schema** using Room to store playlists, tracks, albums and quizzes.
+        *   Creating the **data access objects (DAOs)** and implementing all database interactions.
+         * Managing the interaction with remote data source (Deezer API).
+         *   Implementing the **Repository layer** for data retrieval and manipulation, providing a clean interface for ViewModels.
+        *   Implementing caching strategy for API data and images with Glide, improving data consistency, and enabling the partial offline mode.
+    *   Also contributed to the design and implementation of the **audio preview** functionality for playing preview of the tracks.
 
-##### Testing (Implement unit and UI tests for critical components.)
+- **Ismayil Abdullazada:**
 
-##### Multiple Select for Playlists (Enable selecting multiple tracks for batch operations.)
+    *   **UI Development and State Management:** Primarily responsible for the UI implementation and state management, including:
+        *   Developing the **ViewModel layer**, handling the data processing for all fragments, and providing LiveData to the UI.
+         * Implemented navigation for the application based on bottom navigation and fragment transactions.
+        * Creating the **Fragment-based UI layer**, designing and implementing all the fragments, including the search, playlist, and quiz features.
+        *   Integrating **LiveData** and a ViewModel-based architecture, managing the state of the app, and handling UI updates.
+    *  Also contributed to implementing the quiz functionality, and its different game modes.
 
-##### Quiz Modes (Add modes like Time Attack, Elimination, and Playlist Challenge.)
+Both collaborators shared responsibility for:
 
----
-### **Contributors and Contributions**
-
-- **Yusif Askari**:
-  - Implemented the **Repository Layer**, managing interactions with data sources (local and remote).
-  - Designed and integrated the **caching mechanism** using Room for offline support and Glide for image optimization.
-  - Set up the **Room database** for storing tracks, albums, playlists, and recent searches.
-
-- **Ismayil Abdullazada**:
-  - Developed the **ViewModel Layer**, ensuring smooth data flow between the UI and repositories.
-  - Built the **Fragment-based UI Layer**, implementing the navigation and user interface for search, playlists, and quiz management.
-  - Integrated **LiveData** and ViewModel-based architecture for seamless state management in the app.
+*   **Overall Architecture:** Discussed and selected the project architecture (MVVM).
+*   **Debugging and Testing:** Collaborated on identifying and resolving bugs in different part of the code.
+*  **Code Review:** Reviewing and merging each others code to ensure quality.
 
 
 
