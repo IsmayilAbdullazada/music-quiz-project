@@ -26,7 +26,25 @@ This application provides users with a seamless experience to search for music t
    - MediaPlayer for audio playback of track previews.
 
 ### **Illustrative Screenshots**
-*Screenshots are placeholders as they are unavailable from the provided context. Please include screenshots of search results, detailed track/album views, and playlist management screens here.*
+
+*   **Search for Music:** Users can search for tracks and albums using the search screen.
+
+    ![Search Screen (Track)](./screenshots/search_screen_track.jpg)
+    ![Search Screen (Album)](./screenshots/search_screen_album.jpg)
+*   **View Album and Track Details:** Detailed information about albums and tracks can be viewed on separate detail screens.
+    
+    ![Album Details](./screenshots/album_details.jpg)
+    ![Track Details](./screenshots/track_details.jpg)
+
+*   **Create and Manage Playlists:** Users can create custom playlists and add/remove tracks to/from them.
+    
+    ![Playlist Screen](./screenshots/playlist_screen.jpg)
+    ![Playlist Details](./screenshots/playlist_details.jpg)
+    ![Add Track to Playlist](./screenshots/add_playlist_from_search.jpg)
+
+*   **Audio Preview:** You can play preview of the music track
+   
+*  **Remove Playlists**:  You can remove playlist from playlist screen
 
 ---
 
