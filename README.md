@@ -29,18 +29,20 @@ This application provides users with a seamless experience to search for music t
 
 *   **Search for Music:** Users can search for tracks and albums using the search screen.
 
-    ![Search Screen (Track)](./screenshots/search_screen_track.jpg)
-    ![Search Screen (Album)](./screenshots/search_screen_album.jpg)
+    <img src="./screenshots/search_screen_track.jpg" alt="Search Screen (Track)" width="300">
+    <img src="./screenshots/search_screen_album.jpg" alt="Search Screen (Album)" width="300">
+
 *   **View Album and Track Details:** Detailed information about albums and tracks can be viewed on separate detail screens.
-    
-    ![Album Details](./screenshots/album_details.jpg)
-    ![Track Details](./screenshots/track_details.jpg)
+
+    <img src="./screenshots/album_details.jpg" alt="Album Details" width="300">
+    <img src="./screenshots/track_details.jpg" alt="Track Details" width="300">
 
 *   **Create and Manage Playlists:** Users can create custom playlists and add/remove tracks to/from them.
-    
-    ![Playlist Screen](./screenshots/playlist_screen.jpg)
-    ![Playlist Details](./screenshots/playlist_details.jpg)
-    ![Add Track to Playlist](./screenshots/add_playlist_from_search.jpg)
+
+    <img src="./screenshots/playlist_screen.jpg" alt="Playlist Screen" width="300">
+    <img src="./screenshots/playlist_details.jpg" alt="Playlist Details" width="300">
+    <img src="./screenshots/add_playlist_from_search.jpg" alt="Add Track to Playlist" width="300">
+
 
 *   **Audio Preview:** You can play preview of the music track
    
