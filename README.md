@@ -184,4 +184,17 @@ graph TD
    - The app does not yet have a dedicated dark mode. Adding this feature would enhance usability and aesthetics for users preferring darker themes.
 
 ---
+### **Contributors and Contributions**
+
+- **Yusif Askari**:
+  - Implemented the **Repository Layer**, managing interactions with data sources (local and remote).
+  - Designed and integrated the **caching mechanism** using Room for offline support and Glide for image optimization.
+  - Set up the **Room database** for storing tracks, albums, playlists, and recent searches.
+
+- **Ismayil Abdullazada**:
+  - Developed the **ViewModel Layer**, ensuring smooth data flow between the UI and repositories.
+  - Built the **Fragment-based UI Layer**, implementing the navigation and user interface for search, playlists, and quiz management.
+  - Integrated **LiveData** and ViewModel-based architecture for seamless state management in the app.
+
+
 
