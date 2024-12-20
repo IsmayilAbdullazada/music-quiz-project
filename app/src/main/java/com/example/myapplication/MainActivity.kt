@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import com.example.myapplication.ui.SearchFragment
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.ui.PlaylistFragment
+import com.example.myapplication.ui.QuizFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,10 +32,10 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
 
-//                R.id.navigation_quiz -> {
-//                    loadFragment(QuizFragment())
-//                    true
-//                }
+                R.id.navigation_quiz -> {
+                    loadFragment(QuizFragment())
+                    true
+                }
 
                 else -> false
             }

@@ -1,7 +1,6 @@
 package com.example.myapplication.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,19 +8,19 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
-import com.example.myapplication.HorizontalTrackAdapter
-import com.example.myapplication.data.db.PlaylistTrack
-import com.example.myapplication.data.db.PlaylistWithTracks
+import com.example.myapplication.adapters.HorizontalTrackAdapter
+import com.example.myapplication.R
+import com.example.myapplication.data.db.playlist.PlaylistTrack
 import com.example.myapplication.data.models.Track
-import com.example.myapplication.mvvm.SearchViewModel
+import com.example.myapplication.mvvm.playlist.PlaylistViewModel
 import com.example.myapplication.databinding.FragmentPlaylistDetailsBinding
-import kotlinx.coroutines.launch
+import com.example.myapplication.mvvm.search.SearchViewModel
 
 class PlaylistDetailsFragment : Fragment() {
 
     private lateinit var binding: FragmentPlaylistDetailsBinding
-    private val viewModel: SearchViewModel by viewModels()
+    private val searchViewModel: SearchViewModel by viewModels()
+    private val playlistViewModel: PlaylistViewModel by viewModels()
     private var playlistId: Long? = null
     private lateinit var trackAdapter: HorizontalTrackAdapter
     private val trackDetailsMap = mutableMapOf<Long, Track>()
@@ -50,24 +49,32 @@ class PlaylistDetailsFragment : Fragment() {
     }
 
     private fun observeErrors() {
-        viewModel.error.observe(viewLifecycleOwner) { error ->
+        searchViewModel.error.observe(viewLifecycleOwner) { error ->
+            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+        }
+
+        playlistViewModel.error.observe(viewLifecycleOwner) { error ->
             Toast.makeText(context, error, Toast.LENGTH_LONG).show()
         }
     }
+
     private fun setupRecyclerView() {
         trackAdapter = HorizontalTrackAdapter(
             onTrackClicked = { track ->
                 showTrackDetails(track)
+            },
+            onItemRemoved = { item ->
+                removeTrackFromPlaylist(item)
             }
         )
         binding.trackRecyclerView.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             adapter = trackAdapter
         }
     }
 
     private fun observePlaylists() {
-        viewModel.playlists.observe(viewLifecycleOwner){ playlists ->
+        playlistViewModel.playlists.observe(viewLifecycleOwner){ playlists ->
             val currentPlaylist = playlists.firstOrNull{ it.playlist.id == playlistId}
             currentPlaylist?.let{
                 binding.playlistName.text = it.playlist.name
@@ -79,15 +86,21 @@ class PlaylistDetailsFragment : Fragment() {
                 fetchTrackDetails(tracks)
             }
         }
-        viewModel.getAllPlaylists()
+        playlistViewModel.getAllPlaylists()
 
     }
+
     private fun fetchTrackDetails(tracks:List<PlaylistTrack>){
-        for(track in tracks) {
-            viewModel.fetchTrack(track.trackId)
-            viewModel.track.observe(viewLifecycleOwner){ trackDetails ->
+        for (track in tracks){
+            searchViewModel.fetchTrack(track.trackId)
+//            searchViewModel.track.observe(viewLifecycleOwner){ trackDetails ->
+//                if(trackDetails != null) {
+//                    updateAdapter(track, trackDetails)
+//                }
+//            }
+            searchViewModel.track.observe(viewLifecycleOwner){ trackDetails ->
                 if(trackDetails != null) {
-                    trackDetailsMap[trackDetails.id.toLong()] = trackDetails
+                    trackDetailsMap[trackDetails.id] = trackDetails
                     val tracksWithDetails = tracks.map{ track ->
                         track to trackDetailsMap[track.trackId]
                     }
@@ -96,11 +109,43 @@ class PlaylistDetailsFragment : Fragment() {
             }
 
         }
+    }
+    private fun updateAdapter(track: PlaylistTrack, trackDetails: Track) {
+        val currentList = trackAdapter.currentList.toMutableList()
+        val index = currentList.indexOfFirst { it.first.trackId == track.trackId }
 
+        if(index != -1) {
+            currentList[index] = track to trackDetails
+            trackAdapter.submitList(currentList.toList())
+        }
     }
     private fun showTrackDetails(track:Track){
-        Toast.makeText(context, "Opening track: ${track.title}", Toast.LENGTH_SHORT).show()
-        //TODO: Open track details fragment here
+        val detailsFragment = TrackDetailsFragment.newInstance(track.id)
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, detailsFragment)
+            .addToBackStack(null)
+            .commit()
+    }
+    private fun removeTrackFromPlaylist(track: PlaylistTrack) {
+        Toast.makeText(context, "Remove track: ${track.trackId}", Toast.LENGTH_SHORT).show()
+        playlistViewModel.removeTrackFromPlaylist(track.playlistId, track.trackId)
+        updatePlaylistData()
+    }
+    private fun updatePlaylistData(){
+        playlistId?.let {
+            playlistViewModel.getPlaylistWithTracks(it)
+            playlistViewModel.playlist.observe(viewLifecycleOwner){ playlist ->
+                if (playlist != null){
+                    binding.playlistName.text = playlist.playlist.name
+                    val tracks = playlist.tracks
+                    val tracksWithDetails = tracks.map{ track ->
+                        track to null
+                    }
+                    trackAdapter.submitList(tracksWithDetails)
+                    fetchTrackDetails(tracks)
+                }
+            }
+        }
     }
     companion object {
         private const val ARG_PLAYLIST_ID = "playlist_id"

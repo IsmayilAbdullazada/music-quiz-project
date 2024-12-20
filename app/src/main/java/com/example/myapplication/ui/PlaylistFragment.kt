@@ -5,22 +5,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.myapplication.PlaylistAdapter
+import com.example.myapplication.adapters.PlaylistAdapter
 import com.example.myapplication.R
-import com.example.myapplication.data.db.Playlist
-import com.example.myapplication.data.db.PlaylistWithTracks
-import com.example.myapplication.mvvm.SearchViewModel
+import com.example.myapplication.data.db.playlist.Playlist
+import com.example.myapplication.data.db.playlist.PlaylistWithTracks
+import com.example.myapplication.mvvm.playlist.PlaylistViewModel
 import com.example.myapplication.databinding.FragmentPlaylistBinding
+import com.example.myapplication.mvvm.search.SearchViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 
 class PlaylistFragment : Fragment() {
     private lateinit var binding: FragmentPlaylistBinding
-    private val viewModel: SearchViewModel by viewModels()
+    private val playlistViewModel: PlaylistViewModel by viewModels()
+    private val searchViewModel: SearchViewModel by viewModels()
     private lateinit var playlistAdapter: PlaylistAdapter
 
     override fun onCreateView(
@@ -38,11 +39,15 @@ class PlaylistFragment : Fragment() {
         setupAddPlaylistButton()
         observePlaylists()
         observeErrors()
-        viewModel.getAllPlaylists()
+        playlistViewModel.getAllPlaylists()
     }
 
     private fun observeErrors() {
-        viewModel.error.observe(viewLifecycleOwner) { error ->
+        searchViewModel.error.observe(viewLifecycleOwner) { error ->
+            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+        }
+
+        playlistViewModel.error.observe(viewLifecycleOwner) { error ->
             Toast.makeText(context, error, Toast.LENGTH_LONG).show()
         }
     }
@@ -51,6 +56,9 @@ class PlaylistFragment : Fragment() {
         playlistAdapter = PlaylistAdapter(
             onItemClicked = { playlist ->
                 showPlaylistDetails(playlist.playlist.id)
+            },
+            onItemRemoved = { item ->
+                removePlaylist(item)
             }
         )
         binding.playlistRecyclerView.apply {
@@ -59,7 +67,7 @@ class PlaylistFragment : Fragment() {
         }
     }
     private fun observePlaylists(){
-        viewModel.playlists.observe(viewLifecycleOwner){ playlists ->
+        playlistViewModel.playlists.observe(viewLifecycleOwner){ playlists ->
             playlistAdapter.submitList(playlists)
         }
     }
@@ -78,8 +86,14 @@ class PlaylistFragment : Fragment() {
             .setPositiveButton("Add") { _, _ ->
                 val playlistName = playlistNameEditText.text.toString()
                 if (playlistName.isNotBlank()) {
-                    viewModel.insertPlaylist(Playlist(name = playlistName))
-                    viewModel.getAllPlaylists()
+                    playlistViewModel.insertPlaylist(Playlist(name = playlistName))
+                    playlistViewModel.getAllPlaylists()
+//                    playlistViewModel.playlists.observe(viewLifecycleOwner){ playlists ->
+//                        val playlist = playlists.firstOrNull{it.playlist.name == playlistName}
+//                        if (playlist != null){
+//                            showPlaylistDetails(playlist.playlist.id)
+//                        }
+//                    }
                 } else {
                     Toast.makeText(context, "Playlist name cannot be empty", Toast.LENGTH_SHORT)
                         .show()
@@ -94,5 +108,9 @@ class PlaylistFragment : Fragment() {
             .replace(R.id.fragment_container, playlistDetailsFragment)
             .addToBackStack(null)
             .commit()
+    }
+    private fun removePlaylist(item: PlaylistWithTracks){
+        playlistViewModel.deletePlaylist(item.playlist.id)
+        playlistViewModel.getAllPlaylists()
     }
 }

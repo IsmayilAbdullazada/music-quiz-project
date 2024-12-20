@@ -1,7 +1,6 @@
 package com.example.myapplication.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,22 +10,23 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.myapplication.data.models.Album
 import com.example.myapplication.R
-import com.example.myapplication.SearchAdapter
 import com.example.myapplication.SearchType
-import com.example.myapplication.mvvm.SearchViewModel
-import com.example.myapplication.data.db.Playlist
+import com.example.myapplication.adapters.SearchAdapter
+import com.example.myapplication.mvvm.search.SearchViewModel
+import com.example.myapplication.data.db.playlist.Playlist
 import com.example.myapplication.data.models.Track
 import com.example.myapplication.databinding.FragmentSearchBinding
+import com.example.myapplication.mvvm.playlist.PlaylistViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
-import com.example.myapplication.data.db.PlaylistWithTracks
+import com.example.myapplication.data.db.playlist.PlaylistWithTracks
 
 class SearchFragment : Fragment() {
 
     private lateinit var binding: FragmentSearchBinding
-    private val viewModel: SearchViewModel by viewModels()
+    private val searchViewModel: SearchViewModel by viewModels()
+    private val playlistViewModel: PlaylistViewModel by viewModels()
     private lateinit var searchAdapter: SearchAdapter
-    private var currentPlaylistId: Long = 1 // Default playlist ID for now
 
 
     override fun onCreateView(
@@ -48,7 +48,10 @@ class SearchFragment : Fragment() {
     }
 
     private fun observeErrors() {
-        viewModel.error.observe(viewLifecycleOwner) { error ->
+        searchViewModel.error.observe(viewLifecycleOwner) { error ->
+            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+        }
+        playlistViewModel.error.observe(viewLifecycleOwner) { error ->
             Toast.makeText(context, error, Toast.LENGTH_LONG).show()
         }
     }
@@ -85,12 +88,12 @@ class SearchFragment : Fragment() {
 
 
     private fun searchForItems(query: String, searchType: SearchType) {
-        viewModel.searchItems(query, searchType)
+        searchViewModel.searchItems(query, searchType)
     }
 
 
     private fun observeSearchResults() {
-        viewModel.searchResults.observe(viewLifecycleOwner) { items ->
+        searchViewModel.searchResults.observe(viewLifecycleOwner) { items ->
             searchAdapter.submitList(items)
         }
     }
@@ -99,7 +102,7 @@ class SearchFragment : Fragment() {
     private fun showDetails(item: Any) {
         when (item){
             is Track -> {
-                val detailsFragment = TrackDetailsFragment.newInstance(item.id.toLong())
+                val detailsFragment = TrackDetailsFragment.newInstance(item.id)
                 parentFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, detailsFragment)
                     .addToBackStack(null)
@@ -115,14 +118,15 @@ class SearchFragment : Fragment() {
         }
     }
     private fun showPlaylistOptions(item: Any) {
-        viewModel.playlists.observe(viewLifecycleOwner) { playlists ->
+        playlistViewModel.getAllPlaylists()
+        playlistViewModel.playlists.observe(viewLifecycleOwner) { playlists ->
             if (playlists.isEmpty()) {
                 showAddPlaylistDialog(item)
             } else {
                 showPlaylistSelectionDialog(item, playlists)
             }
         }
-        viewModel.getAllPlaylists()
+
     }
     private fun showAddPlaylistDialog(item: Any) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_playlist, null)
@@ -134,14 +138,14 @@ class SearchFragment : Fragment() {
             .setPositiveButton("Add") { _, _ ->
                 val playlistName = playlistNameEditText.text.toString()
                 if (playlistName.isNotBlank()) {
-                    viewModel.insertPlaylist(Playlist(name = playlistName))
-                    viewModel.getAllPlaylists()
-                    viewModel.playlists.observe(viewLifecycleOwner){ playlists ->
-                        val playlist = playlists.firstOrNull{ it.playlist.name == playlistName}
-                        if(playlist != null){
+                    playlistViewModel.insertPlaylist(Playlist(name = playlistName))
+                    playlistViewModel.playlists.observe(viewLifecycleOwner) { playlists ->
+                        val playlist = playlists.firstOrNull { it.playlist.name == playlistName }
+                        if (playlist != null) {
                             addItemToPlaylist(item, playlist.playlist.id)
                         }
                     }
+
 
                 } else {
                     Toast.makeText(context, "Playlist name cannot be empty", Toast.LENGTH_SHORT)
@@ -168,7 +172,7 @@ class SearchFragment : Fragment() {
     private fun addItemToPlaylist(item: Any, playlistId: Long) {
         when (item) {
             is Track -> {
-                viewModel.addTrackToPlaylist(playlistId, item.id)
+                playlistViewModel.addTrackToPlaylist(playlistId, item.id)
                 Toast.makeText(context, "Track added to playlist: ${item.title}", Toast.LENGTH_SHORT).show()
             }
             is Album -> {
