@@ -1,29 +1,66 @@
 # **Music Search and Playlist Manager App**
 
-## **Overview**
+## App Functionalities
 
-This application provides users with a seamless experience to search for music tracks and albums, view detailed information about them, and manage custom playlists. The app leverages the Deezer API for fetching music data and incorporates robust caching and persistence strategies to enhance user experience.
+This music app lets you explore music, create playlists, and test your music knowledge with fun quizzes. Here's a breakdown of the app's functionalities:
 
-### **Key Features**
+**I. Music Exploration:**
 
-1. **Search Functionality:**
-   - Search for tracks or albums using keywords.
-   - View search results in a grid layout with album covers and track details.
+1.  **Search for Music:**
+    *   Enter keywords to search for specific tracks or albums using the search bar.
+    *   Choose between searching for tracks or albums using radio buttons.
+    *   View search results with album art, track/album titles, and artist names in a scrollable grid.
 
-2. **Detailed View:**
-   - Get detailed information about tracks and albums, including contributors, release dates, genres, and more.
-   - Play preview clips of tracks.
+2.  **View Detailed Information:**
+    *   Tap on a search result to view a detailed screen.
+        *   **For Tracks:** See the track title, artist, album, duration, bpm, release date, and listen to a short preview of the track.
+        *   **For Albums:** See the album title, artist, release date, tracklist and other information.
 
-3. **Playlist Management:**
-   - Create, view, and manage custom playlists.
-   - Add tracks to playlists directly from the search results.
+**II. Playlist Management:**
 
-4. **Intuitive Navigation:**
-   - Easily switch between Search and Playlist sections using a bottom navigation bar.
+1.  **Create Playlists:**
+    *   Create custom playlists and name them.
 
-5. **Media Integration:**
-   - Glide library for optimized image loading and caching.
-   - MediaPlayer for audio playback of track previews.
+2.  **View Playlists:**
+    *   View all created playlists in a list with their names.
+
+3.  **Add Tracks to Playlists:**
+    *   Add tracks from search results to a playlist by long-pressing and selecting the playlist.
+
+4.  **View Playlist Details:**
+    *   View the playlist details and list of tracks.
+    *   Remove tracks from the playlist.
+5.  **Remove Playlists:**
+    * Easily remove playlists from the playlist screen.
+
+**III. Quiz Functionality:**
+
+1.  **Create Quizzes:**
+    *   Create a new quiz and name it.
+    *   Select a playlist to use for the quiz.
+
+2.  **List Quizzes:**
+    *   View all created quizzes in a list with their names.
+
+3.  **View Quiz Details:**
+    *   See details for each quiz including quiz name and playlist used for the quiz.
+    *   Start the quiz using a play button.
+
+4.  **Play Quizzes:**
+    *   Listen to a preview for each question.
+    *   Answer questions in multiple-choice or open ended format.
+    *  See the countdown timer for each question.
+     *  See the results after quiz has been finished.
+
+5.  **Remove Quizzes:**
+    *  Easily remove quizzes from quiz screen.
+
+**IV. Additional Features:**
+1.  **Time Limits:**
+    *   Answer questions within a configured time limit.
+
+2.  **Audio Preview:**
+    *   Preview music before adding to playlists or when playing quiz.
 
 ### **Illustrative Screenshots**
 
@@ -149,21 +186,22 @@ graph TD
 
 ### **Implementation Choices**
 
-#### **MVVM Pattern**
-- **View Layer:** Contains fragments for search, album details, and playlist management. Each fragment interacts with the ViewModel to display data and handle user interactions.
-- **ViewModel Layer:** Acts as the logic holder for fetching and managing data. Uses `LiveData` to observe and propagate changes to the UI. Coroutine scopes are utilized for async operations.
-- **Repository Layer:** Manages data sources. It checks for cached data in Room first and fetches from the Deezer API using Retrofit if needed.
+1.  **MVVM Architecture:** We adopted the Model-View-ViewModel (MVVM) architectural pattern it provides a clean separation of concerns, making the code more maintainable, testable, and scalable. Fragments act as the View layer to manage the UI, ViewModels manage the UI-related data, and Repositories handle data access and logic.
 
-#### **Caching Mechanism**
-- Images are cached using the Glide library, optimizing performance and reducing network calls.
-- Tracks, albums, and playlists are stored in a Room database to support offline access and persistent user data.
+2.  **Room Persistence Library:** We used Room as the local persistence library to manage the local database, such as to define database entities (playlists, tracks, quizzes, questions), data access objects (DAOs), and the database itself, making database operations smooth and structured.
 
-#### **Recent Searches**
-- Recent searches are saved in Room with timestamps to allow users to revisit previous queries.
+4.  **Retrofit for API Communication:** We use Retrofit for making API calls to the Deezer service, converting JSON responses into our `Track` and `Album` data classes.
 
-#### **Retrofit Integration**
-- Retrofit and Gson are used for making and parsing network requests to the Deezer API. HTTP logging is added for easier debugging of API calls.
+5.  **Glide for Image Loading:** We use Glide for image loading since it makes efficient image loading from network or local sources and provides image caching and optimizes loading for better performance.
 
+6.  **Android Architecture Components:** We made extensive use of Android Architecture Components.
+        *   **LiveData:** Used to manage data updates in the UI.
+         * **ViewModel:** Used to handle the UI logic for all the fragments and providing data to the UI.
+        *   **Navigation Component:** Used to manage fragment transactions and navigation between different fragments.
+
+7.  **RecyclerView:** We used `RecyclerView` for displaying search results, playlists, quiz lists and quizzes.
+
+8.  **Coroutines for Asynchronous Operations:** We used Kotlin Coroutines to perform operations like to handinge network operations, data fetching, and database operations asynchronously in our viewmodels.
 ---
 
 ### **Unresolved Technical Challenges**
