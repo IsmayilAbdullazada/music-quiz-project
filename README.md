@@ -39,63 +39,94 @@ The app follows the **Model-View-ViewModel (MVVM)** architecture to ensure separ
 ### **Architecture Diagram**
 
 ```mermaid
-
 graph TD
-    subgraph UI
-        A1[MainActivity]
-        A2[SearchFragment]
-        A3[PlaylistFragment]
-        A4[AlbumDetailsFragment]
-        A5[TrackDetailsFragment]
-    end
 
-    subgraph ViewModel
-        B1[SearchViewModel]
-    end
+  %% UI Layer
+  subgraph "UI Layer"
+    MainActivity -->|Navigates to| SearchFragment
+    MainActivity -->|Navigates to| PlaylistFragment
+    MainActivity -->|Navigates to| QuizFragment
 
-    subgraph Repository
-        C1[SearchRepository]
-    end
+    SearchFragment -->|Opens| AlbumDetailsFragment
+    SearchFragment -->|Opens| TrackDetailsFragment
+    PlaylistFragment -->|Opens| PlaylistDetailsFragment
+    QuizFragment -->|Opens| QuizDetailsFragment
+    QuizDetailsFragment -->|Starts| QuizPlayFragment
+  end
 
-    subgraph External
-        D1[DeezerApiService - Retrofit]
-        D2[Room Database]
-    end
+  %% ViewModel Layer
+  subgraph "ViewModel Layer"
+    SearchViewModel
+    PlaylistViewModel
+    QuizViewModel
+  end
 
-    %% Connections between components
-    A1 --> A2
-    A1 --> A3
-    A2 --> B1
-    A3 --> B1
-    A4 --> B1
-    A5 --> B1
+  %% Repository Layer
+  subgraph "Repository Layer"
+    SearchRepository
+    PlaylistRepository
+    QuizRepository
+  end
 
-    %% ViewModel interaction with Repository
-    B1 -->|Search Tracks/Albums| C1
-    B1 -->|Get Track/Album Details| C1
-    B1 -->|Insert Playlist| C1
-    B1 -->|Add Track to Playlist| C1
-    B1 -->|Fetch All Playlists| C1
+  %% External Data Sources
+  subgraph "Data Sources"
+    DeezerApi 
+    PlaylistTable
+    TrackTable
+    QuizTable
+    QuizQuestionTable
+  end
 
-    %% Repository interaction with Retrofit and Database
-    C1 -->|Search API Calls| D1
-    C1 -->|Get Track/Album Details| D1
-    C1 -->|Add Track to Playlist| D2
-    C1 -->|Insert Playlist| D2
-    C1 -->|Fetch Playlists| D2
+  %% Connections
+  SearchFragment --> SearchViewModel
+  PlaylistFragment --> PlaylistViewModel
+  QuizFragment --> QuizViewModel
 
-    %% API and Database interaction
-    D1[DeezerApiService - Retrofit] -->|HTTP GET| ExternalAPI[Deezer API]
-    D2[Room Database] -->|Read/Write| InternalStorage
+  AlbumDetailsFragment --> SearchViewModel
+  TrackDetailsFragment --> SearchViewModel
+  PlaylistDetailsFragment --> PlaylistViewModel
+  QuizDetailsFragment --> QuizViewModel
+  QuizPlayFragment --> QuizViewModel
 
-    %% Feedback loop
-    D1 --> C1
-    D2 --> C1
-    C1 --> B1
-    B1 -->|LiveData Updates| A2
-    B1 -->|LiveData Updates| A3
-    B1 -->|LiveData Updates| A4
-    B1 -->|LiveData Updates| A5
+  SearchFragment -->|Binds to| SearchViewModel
+  PlaylistFragment -->|Binds to| PlaylistViewModel
+  QuizFragment -->|Binds to| QuizViewModel
+
+  AlbumDetailsFragment -->|Binds to| SearchViewModel
+  TrackDetailsFragment -->|Binds to| SearchViewModel
+  PlaylistDetailsFragment -->|Binds to| PlaylistViewModel
+  QuizDetailsFragment -->|Binds to| QuizViewModel
+  QuizPlayFragment -->|Binds to| QuizViewModel
+
+  SearchViewModel -->|Request Data| SearchRepository
+  PlaylistViewModel -->|Request Data| PlaylistRepository
+  QuizViewModel -->|Request Data| QuizRepository
+
+  SearchRepository -->|Fetch Data| DeezerApi
+  PlaylistRepository -->|Manage Data| PlaylistTable
+  PlaylistRepository -->|Manage Tracks| TrackTable
+  PlaylistRepository -->|Fetch Remote Data| DeezerApi
+  QuizRepository -->|Manage Data| QuizTable
+  QuizRepository -->|Manage Questions| QuizQuestionTable
+  QuizRepository -->|Fetch Remote Data| DeezerApi
+
+  SearchRepository -->|Fetch/Search Data| DeezerApi
+  PlaylistRepository -->|Manage Playlists and Tracks| PlaylistTable
+  PlaylistRepository -->|Fetch Tracks| DeezerApi
+  QuizRepository -->|Manage Quizzes and Questions| QuizTable
+  QuizRepository -->|Fetch Data| DeezerApi
+
+  SearchViewModel -->|Fetch/Search Albums/Tracks| SearchRepository
+  SearchViewModel -->|Fetch Track/Album Details| SearchRepository
+
+  PlaylistViewModel -->|Fetch/Create/Update/Delete Playlists| PlaylistRepository
+  PlaylistViewModel -->|Manage Track Associations| PlaylistRepository
+
+  QuizViewModel -->|Fetch/Create/Delete Quizzes| QuizRepository
+  QuizViewModel -->|Access Quiz Questions| QuizRepository
+  QuizViewModel -->|Access Playlist Data for Quizzes| PlaylistRepository
+
+ 
 
 ```
 
